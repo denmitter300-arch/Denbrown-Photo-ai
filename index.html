@@ -39,10 +39,11 @@ footer{padding:24px 0;border-top:1px solid #333;background:#171717;color:#aaa;fo
 
 <button class="photo-admin-trigger" onclick="togglePhotoAdmin()">✎ QUẢN LÝ ẢNH</button>
 <aside class="photo-admin" id="photoAdmin">
-<h3>Thay ảnh DENBROWN</h3>
-<p class="hint">Chọn ảnh mới cho từng vị trí. Ảnh sẽ lưu trên trình duyệt và thiết bị bạn đang dùng.</p>
+<h3>Quản lý ảnh DENBROWN</h3>
+<p class="hint">Đăng nhập bằng email quản trị để thay ảnh công khai. Ảnh sẽ đồng bộ cho tất cả khách truy cập.</p>
+<div id="authArea"><button onclick="sendAdminLogin()">Gửi link đăng nhập qua email</button><p id="authStatus" class="hint">Tài khoản quản trị: denmitter300@gmail.com</p></div>
 <div id="photoRows"></div>
-<div class="admin-actions"><button class="light" onclick="restorePhotos()">Khôi phục ảnh mẫu</button><button onclick="togglePhotoAdmin()">Đóng</button></div>
+<div class="admin-actions"><button class="light" onclick="adminLogout()">Đăng xuất</button><button onclick="togglePhotoAdmin()">Đóng</button></div>
 </aside>
 \n<div id="qr"><button onclick="document.getElementById('qr').style.display='none'">Đóng ×</button><img id="qrimg" alt="QR code"><small>Quét để mở Profile</small></div>
 <script>
@@ -52,9 +53,9 @@ const SUPABASE_URL='https://huxkugikutlwiilnipso.supabase.co';
 const SUPABASE_KEY='sb_publishable_y_Zf6lrTKZWmi0l-Xj-S3A_VfRXB0U1';
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let adminSession=null;
-function togglePhotoAdmin(){const p=document.getElementById('photoAdmin');p.classList.toggle('open');if(p.classList.contains('open'))refreshAdmin()}
+function togglePhotoAdmin(){const p=document.getElementById('photoAdmin');p.classList.toggle('open');if(p.classList.contains('open'))refreshAdmin().catch(e=>{document.getElementById('authStatus').textContent='Lỗi kết nối: '+e.message})}
 async function refreshAdmin(){const {data:{session}}=await db.auth.getSession();adminSession=session;const ok=!!session&&session.user.email==='denmitter300@gmail.com';document.getElementById('authArea').style.display=ok?'none':'block';document.getElementById('photoRows').style.display=ok?'block':'none';if(ok)renderPhotoRows();else document.getElementById('authStatus').textContent=session?'Tài khoản này không có quyền quản trị. Hãy đăng nhập bằng denmitter300@gmail.com.':'Tài khoản quản trị: denmitter300@gmail.com'}
-async function sendAdminLogin(){const status=document.getElementById('authStatus');status.textContent='Đang gửi liên kết đăng nhập...';const {error}=await db.auth.signInWithOtp({email:'denmitter300@gmail.com',options:{emailRedirectTo:location.href}});status.textContent=error?'Không gửi được email: '+error.message:'Đã gửi link đăng nhập. Mở hộp thư denmitter300@gmail.com và bấm link để đăng nhập.'}
+async function sendAdminLogin(){const status=document.getElementById('authStatus');status.textContent='Đang gửi liên kết đăng nhập...';const {error}=await db.auth.signInWithOtp({email:'denmitter300@gmail.com',options:{emailRedirectTo:location.href}});status.textContent=error?'Không gửi được email: '+error.message:'Đã gửi link đăng nhập. Kiểm tra hộp thư đến và thư rác của denmitter300@gmail.com.'}
 async function adminLogout(){await db.auth.signOut();adminSession=null;refreshAdmin()}
 function renderPhotoRows(){const root=document.getElementById('photoRows');root.innerHTML='';Object.entries(photoNames).forEach(([key,name])=>{const row=document.createElement('div');row.className='photo-row';const label=document.createElement('span');label.textContent=name;const input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';input.setAttribute('aria-label','Chọn '+name);input.onchange=e=>savePhoto(key,e.target.files[0]);row.append(label,input);root.append(row)})}
 async function savePhoto(key,file){if(!file)return;if(!adminSession||adminSession.user.email!=='denmitter300@gmail.com'){alert('Vui lòng đăng nhập tài khoản quản trị trước.');return}if(!['image/jpeg','image/png','image/webp'].includes(file.type)){alert('Chỉ nhận ảnh JPG, PNG hoặc WEBP.');return}if(file.size>10*1024*1024){alert('Ảnh tối đa 10 MB.');return}const status=document.getElementById('authStatus');status.textContent='Đang tải ảnh lên...';const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';const path=key+'/'+Date.now()+'.'+ext;const {error:uploadError}=await db.storage.from('denbrown-profile').upload(path,file,{contentType:file.type,cacheControl:'3600'});if(uploadError){alert('Tải ảnh thất bại: '+uploadError.message);status.textContent='Không tải được ảnh.';return}const {data:{publicUrl}}=db.storage.from('denbrown-profile').getPublicUrl(path);const {error:dbError}=await db.from('denbrown_profile_photos').upsert({slot:key,image_url:publicUrl,updated_at:new Date().toISOString()},{onConflict:'slot'});if(dbError){alert('Ảnh đã tải lên nhưng chưa cập nhật được danh sách: '+dbError.message);return}applyPhoto(key,publicUrl);status.textContent='Đã cập nhật công khai: '+nameFor(key);alert('Đã thay ảnh công khai. Mọi người truy cập website sẽ thấy ảnh mới.')}
