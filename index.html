@@ -26,7 +26,8 @@ footer{padding:24px 0;border-top:1px solid #333;background:#171717;color:#aaa;fo
 .photo-admin{display:none;position:fixed;z-index:60;right:14px;bottom:76px;width:min(370px,calc(100vw - 28px));max-height:70vh;overflow:auto;background:#fff;border:1px solid var(--line);box-shadow:0 12px 40px #0002;padding:18px;border-radius:14px}
 .photo-admin.open{display:block}.photo-admin h3{font:600 24px 'Playfair Display',serif;margin:0 0 6px}.photo-admin .hint{font-size:12px;color:var(--muted);line-height:1.6;margin:0 0 14px}.photo-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-top:1px solid var(--line);font-size:13px}.photo-row input{max-width:155px;font-size:11px}.photo-admin .admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.photo-admin button{border:1px solid var(--ink);background:#171717;color:white;padding:10px 12px;border-radius:6px;font-size:11px;cursor:pointer}.photo-admin button.light{background:white;color:#171717}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n</head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
 <body>
 <header><div class="wrap nav"><a class="brand" href="#">DENBROWN<small>PHOTOGRAPHY STUDIO</small></a><nav class="links" id="links"><a href="#portfolio">Portfolio</a><a href="#about">Giới thiệu</a><a href="#approach">Phong cách</a><a href="#contact">Liên hệ</a></nav><button class="menu" aria-label="Mở menu" onclick="document.getElementById('links').classList.toggle('open')">☰</button></div></header>
 <main>
@@ -45,9 +46,11 @@ footer{padding:24px 0;border-top:1px solid #333;background:#171717;color:#aaa;fo
 <div id="photoRows"></div>
 <div class="admin-actions"><button class="light" onclick="adminLogout()">Đăng xuất</button><button onclick="togglePhotoAdmin()">Đóng</button></div>
 </aside>
-\n<div id="qr"><button onclick="document.getElementById('qr').style.display='none'">Đóng ×</button><img id="qrimg" alt="QR code"><small>Quét để mở Profile</small></div>
+
+<div id="qr"><button onclick="document.getElementById('qr').style.display='none'">Đóng ×</button><img id="qrimg" alt="QR code"><small>Quét để mở Profile</small></div>
 <script>
-document.getElementById('year').textContent=new Date().getFullYear();\n
+document.getElementById('year').textContent=new Date().getFullYear();
+
 const photoNames={hero:'Ảnh bìa chính',wedding1:'Ảnh phóng sự 1',wedding2:'Khoảnh khắc ngày cưới 2',details:'Khoảnh khắc chi tiết',couple:'Cô dâu và chú rể',bouquet:'Chi tiết ngày cưới',about:'Ảnh giới thiệu'};
 const SUPABASE_URL='https://huxkugikutlwiilnipso.supabase.co';
 const SUPABASE_KEY='sb_publishable_y_Zf6lrTKZWmi0l-Xj-S3A_VfRXB0U1';
