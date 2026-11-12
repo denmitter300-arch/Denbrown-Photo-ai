@@ -100,7 +100,8 @@ async function createAlbum(){if(!adminSession||adminSession.user.email!=='denmit
 async function loadPublicPhotos(){const {data,error}=await db.from('denbrown_profile_photos').select('slot,image_url');if(error){console.warn('Không đọc được ảnh online:',error.message);return}for(const item of data||[])applyPhoto(item.slot,item.image_url)}
 db.auth.onAuthStateChange((_event,session)=>{adminSession=session;if(document.getElementById('photoAdmin').classList.contains('open'))refreshAdmin()});
 document.querySelectorAll('[data-photo]').forEach(el=>{el.dataset.originalSrc=el.src});
-loadPublicPhotos();\nloadAlbums();
+loadPublicPhotos();
+loadAlbums();
 
 function sharePage(){if(navigator.share){navigator.share({title:'DENBROWN Photography Studio',text:'Khám phá Profile DENBROWN',url:location.href}).catch(()=>{});}else if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(()=>alert('Đã sao chép liên kết Profile!'));}else{prompt('Sao chép liên kết này:',location.href)}}
 function showQR(){document.getElementById('qrimg').src='https://api.qrserver.com/v1/create-qr-code/?size=260x260&data='+encodeURIComponent(location.href);document.getElementById('qr').style.display='block'}
