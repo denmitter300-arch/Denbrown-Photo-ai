@@ -102,7 +102,7 @@ async function listBucketImages(folder='',depth=0){
  for(const item of data||[]){
   const path=folder?folder+'/'+item.name:item.name;
   if(item.id===null||item.metadata===null){if(depth<3)folders.push(path);continue}
-  if(!/\\.(jpe?g|png|webp)$/i.test(item.name))continue;
+  if(!/\.(jpe?g|png|webp)$/i.test(item.name))continue;
   const {data:pub}=bucket.getPublicUrl(path);
   files.push({path,url:pub.publicUrl,created_at:item.created_at||item.updated_at||'',name:item.name});
  }
