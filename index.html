@@ -114,15 +114,9 @@ async function listBucketImages(folder='',depth=0){
 }
 async function getAllBucketImages(){if(!storageImagesCache)storageImagesCache=listBucketImages('').catch(e=>{storageImagesCache=null;throw e});return storageImagesCache}
 const ALBUM_CACHE_KEY='denbrown_public_albums_v2';
-function fastAlbumImage(url,width,quality){
- try{
-  const marker='/storage/v1/object/public/denbrown-profile/';
-  const at=String(url||'').indexOf(marker);
-  if(at<0)return url;
-  const path=decodeURIComponent(String(url).slice(at+marker.length).split('?')[0]);
-  return db.storage.from('denbrown-profile').getPublicUrl(path,{transform:{width,quality,resize:'contain'}}).data.publicUrl||url;
- }catch(_){return url}
-}
+// Supabase Image Transformations require an eligible paid plan. Keep originals on the current FREE project.
+function fastAlbumImage(url,width,quality){return url}
+
 function setFastImage(img,url,width,quality){
  const original=url;img.src=fastAlbumImage(original,width,quality);
  img.onerror=()=>{if(img.src!==original){img.onerror=null;img.src=original}};
