@@ -92,7 +92,7 @@ async function refreshAdmin(){const {data,error}=await db.auth.getSession();if(e
 async function sendAdminLogin(){const status=document.getElementById('authStatus');status.textContent='Đang chuẩn bị đăng nhập quản trị...';const {data,error:sessionError}=await db.auth.getSession();if(sessionError){status.textContent='Không kiểm tra được phiên đăng nhập: '+sessionError.message;return}if(data?.session&&!isAdminSession(data.session)){const {error}=await db.auth.signOut();if(error){status.textContent='Không thể thoát tài khoản cũ: '+error.message;return}adminSession=null}status.textContent='Đang gửi liên kết đăng nhập đến '+ADMIN_EMAIL+'...';const {error}=await db.auth.signInWithOtp({email:ADMIN_EMAIL,options:{emailRedirectTo:location.origin+location.pathname}});status.textContent=error?'Không gửi được email: '+error.message:'Đã gửi link đến '+ADMIN_EMAIL+'. Hãy mở email này trên cùng trình duyệt đang dùng DENBROWN.'}
 async function adminLogout(){const {error}=await db.auth.signOut();adminSession=null;if(error){document.getElementById('authStatus').textContent='Đăng xuất lỗi: '+error.message;return}await refreshAdmin()}
 function renderPhotoRows(){const root=document.getElementById('photoRows');root.innerHTML='';Object.entries(photoNames).forEach(([key,name])=>{const row=document.createElement('div');row.className='photo-row';const label=document.createElement('span');label.textContent=name;const input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';input.setAttribute('aria-label','Chọn '+name);input.onchange=e=>savePhoto(key,e.target.files[0]);row.append(label,input);root.append(row)})}
-async function savePhoto(key,file){if(!file)return;if(!isAdminSession(adminSession)){alert('Vui lòng đăng nhập tài khoản quản trị trước.');return}if(!['image/jpeg','image/png','image/webp'].includes(file.type)){alert('Chỉ nhận ảnh JPG, PNG hoặc WEBP.');return}if(file.size>10*1024*1024){alert('Ảnh tối đa 10 MB.');return}const status=document.getElementById('authStatus');const el=document.querySelector('[data-photo="'+key+'"]');const oldUrl=el?el.src:'';const previewUrl=URL.createObjectURL(file);applyPhoto(key,previewUrl);status.textContent='Ảnh đã hiện ngay trên trang. Đang lưu công khai...';const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';const path=key+'/'+Date.now()+'.'+ext;const {error:uploadError}=await db.storage.from('denbrown-profile').upload(path,file,{contentType:file.type,cacheControl:'0'});if(uploadError){if(oldUrl)applyPhoto(key,oldUrl);URL.revokeObjectURL(previewUrl);alert('Tải ảnh thất bại: '+uploadError.message);status.textContent='Không tải được ảnh; đã khôi phục ảnh cũ.';return}const {data:{publicUrl}}=db.storage.from('denbrown-profile').getPublicUrl(path);const {error:dbError}=await db.from('denbrown_profile_photos').upsert({slot:key,image_url:publicUrl,updated_at:new Date().toISOString()},{onConflict:'slot'});if(dbError){if(oldUrl)applyPhoto(key,oldUrl);URL.revokeObjectURL(previewUrl);alert('Ảnh đã tải lên nhưng chưa cập nhật được danh sách: '+dbError.message);status.textContent='Lỗi lưu thông tin ảnh; đã khôi phục ảnh cũ.';return}storageImagesCache=null;applyPhoto(key,publicUrl);URL.revokeObjectURL(previewUrl);status.textContent='Đã cập nhật công khai: '+nameFor(key);alert('Đã thay ảnh. Trang của bạn hiển thị ngay; khách đang mở website sẽ tự nhận ảnh mới.')}
+async function savePhoto(key,file){if(!file)return;if(!isAdminSession(adminSession)){alert('Vui lòng đăng nhập tài khoản quản trị trước.');return}if(!['image/jpeg','image/png','image/webp'].includes(file.type)){alert('Chỉ nhận ảnh JPG, PNG hoặc WEBP.');return}if(file.size>10*1024*1024){alert('Ảnh tối đa 10 MB.');return}const status=document.getElementById('authStatus');const el=document.querySelector('[data-photo="'+key+'"]');const oldUrl=el?el.src:'';const previewUrl=URL.createObjectURL(file);applyPhoto(key,previewUrl);status.textContent='Ảnh đã hiện ngay trên trang. Đang lưu công khai...';const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';const path=key+'/'+Date.now()+'.'+ext;const {error:uploadError}=await db.storage.from('denbrown-profile').upload(path,file,{contentType:file.type,cacheControl:'31536000'});if(uploadError){if(oldUrl)applyPhoto(key,oldUrl);URL.revokeObjectURL(previewUrl);alert('Tải ảnh thất bại: '+uploadError.message);status.textContent='Không tải được ảnh; đã khôi phục ảnh cũ.';return}const {data:{publicUrl}}=db.storage.from('denbrown-profile').getPublicUrl(path);const {error:dbError}=await db.from('denbrown_profile_photos').upsert({slot:key,image_url:publicUrl,updated_at:new Date().toISOString()},{onConflict:'slot'});if(dbError){if(oldUrl)applyPhoto(key,oldUrl);URL.revokeObjectURL(previewUrl);alert('Ảnh đã tải lên nhưng chưa cập nhật được danh sách: '+dbError.message);status.textContent='Lỗi lưu thông tin ảnh; đã khôi phục ảnh cũ.';return}storageImagesCache=null;applyPhoto(key,publicUrl);URL.revokeObjectURL(previewUrl);status.textContent='Đã cập nhật công khai: '+nameFor(key);alert('Đã thay ảnh. Trang của bạn hiển thị ngay; khách đang mở website sẽ tự nhận ảnh mới.')}
 function nameFor(key){return photoNames[key]||key}
 function applyPhoto(key,url){const el=document.querySelector('[data-photo="'+key+'"]');if(el){el.loading=key==='hero'?'eager':'lazy';el.decoding='async';el.onerror=()=>console.warn('Ảnh không tải được:',url);el.src=url}}
 
@@ -123,41 +123,48 @@ function renderAlbumCard(album){
 }
 async function loadAlbums(){
  const grid=document.getElementById('albumGrid');if(!grid)return;grid.innerHTML='';
- let data=[],tableError=null;
  const result=await db.from('denbrown_profile_albums').select('*').order('created_at',{ascending:false});
- data=result.data||[];tableError=result.error;
- if(tableError)console.warn('Không đọc được bảng album, sẽ tìm ảnh trực tiếp trong Storage:',tableError.message);
+ const data=result.data||[],tableError=result.error;
+ if(tableError)console.warn('Không đọc được bảng album:',tableError.message);
  data.forEach(renderAlbumCard);
+ if(!grid.children.length){
+  const empty=document.createElement('p');empty.className='album-empty';
+  empty.textContent=tableError?'Không đọc được danh sách album. Kiểm tra quyền đọc bảng album trong Supabase.':'Album phóng sự cưới sẽ được cập nhật tại đây.';
+  grid.append(empty);
+ }
+ // Chỉ quét thư mục albums, không quét toàn bộ Storage trên mỗi lượt mở trang.
  try{
-  const stored=(await getAllBucketImages()).filter(x=>x.path.startsWith('albums/'));
+  const stored=await listBucketImages('albums');
   const known=new Set(data.flatMap(a=>[a.cover_url,...(a.photo_urls||[])].filter(Boolean)));
   const extra=stored.filter(x=>!known.has(x.url));
   if(extra.length){
-   const group={title:'Ảnh đã tải lên Supabase',cover_url:extra[0].url,photo_urls:extra.slice(1).map(x=>x.url),event_date:null,location:'Ảnh lưu trong kho DENBROWN'};
-   renderAlbumCard(group);
+   const existing=grid.querySelector('[data-storage-album="true"]');
+   if(!existing){
+    const group={title:'Ảnh đã tải lên Supabase',cover_url:extra[0].url,photo_urls:extra.slice(1).map(x=>x.url),event_date:null,location:'Ảnh lưu trong kho DENBROWN'};
+    const before=grid.children.length;renderAlbumCard(group);
+    const card=grid.children[before];if(card)card.dataset.storageAlbum='true';
+   }
   }
- }catch(e){console.warn('Không thể liệt kê ảnh trong Storage:',e.message)}
- if(!grid.children.length){
-  const empty=document.createElement('p');empty.className='album-empty';
-  empty.textContent=tableError?'Không đọc được album hoặc kho ảnh. Kiểm tra quyền đọc Storage/RLS trong Supabase.':'Album phóng sự cưới sẽ được cập nhật tại đây.';
-  grid.append(empty);
- }
+ }catch(e){console.warn('Không thể liệt kê thư mục albums trong Storage:',e.message)}
 }
 function openAlbum(album){document.getElementById('viewerTitle').textContent=album.title;const root=document.getElementById('viewerPhotos');root.innerHTML='';const urls=[album.cover_url,...(album.photo_urls||[])];urls.forEach(url=>{const img=document.createElement('img');img.src=url;img.alt=album.title;img.loading='lazy';img.decoding='async';root.append(img)});document.getElementById('albumViewer').classList.add('open');document.body.style.overflow='hidden'}
 function closeAlbum(){document.getElementById('albumViewer').classList.remove('open');document.body.style.overflow=''}
 async function createAlbum(){if(!isAdminSession(adminSession)){alert('Bạn cần đăng nhập tài khoản quản trị.');return}const title=document.getElementById('albumTitle').value.trim(),cover=document.getElementById('albumCover').files[0],photos=[...document.getElementById('albumPhotos').files];const status=document.getElementById('albumStatus');if(!title||!cover){status.textContent='Vui lòng nhập tên album và chọn ảnh bìa.';return}const files=[cover,...photos];if(files.some(f=>!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>10*1024*1024)){status.textContent='Mỗi ảnh phải là JPG, PNG hoặc WEBP và tối đa 10 MB.';return}status.textContent='Đang tải ảnh album lên...';const urls=[];for(let i=0;i<files.length;i++){const file=files[i],ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg',path='albums/'+Date.now()+'-'+i+'.'+ext;const {error}=await db.storage.from('denbrown-profile').upload(path,file,{contentType:file.type,cacheControl:'3600'});if(error){status.textContent='Lỗi tải ảnh: '+error.message;return}const {data}=db.storage.from('denbrown-profile').getPublicUrl(path);urls.push(data.publicUrl)}const date=document.getElementById('albumDate').value||null,locationText=document.getElementById('albumLocation').value.trim()||null;const {error}=await db.from('denbrown_profile_albums').insert({title,event_date:date,location:locationText,cover_url:urls[0],photo_urls:urls.slice(1)});if(error){status.textContent='Không lưu được album: '+error.message;return}storageImagesCache=null;status.textContent='Đã đăng album công khai thành công.';document.getElementById('albumTitle').value='';document.getElementById('albumDate').value='';document.getElementById('albumLocation').value='';document.getElementById('albumCover').value='';document.getElementById('albumPhotos').value='';await loadAlbums();alert('Album đã được công khai cho mọi người xem.')}
 async function loadPublicPhotos(){
+ // Hiển thị ảnh đã lưu trong bảng ngay khi truy vấn xong, không chờ quét Storage.
  const {data,error}=await db.from('denbrown_profile_photos').select('slot,image_url');
  if(error)console.warn('Không đọc được danh sách ảnh:',error.message);
- const mapped=new Map((data||[]).map(x=>[x.slot,x.image_url]));
- try{
-  const stored=await getAllBucketImages();
-  for(const key of Object.keys(photoNames)){
-   let url=mapped.get(key);
-   if(!url){const matches=stored.filter(x=>x.path.startsWith(key+'/')).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));if(matches.length)url=matches[0].url}
-   if(url)applyPhoto(key,url+(url.includes('?')?'&':'?')+'v='+Date.now());
-  }
- }catch(e){console.warn('Không thể tải ảnh từ Supabase Storage:',e.message)}
+ const mapped=new Map((data||[]).map(x=>[x.slot,x.image_url]).filter(x=>photoNames[x[0]]));
+ for(const [key,url] of mapped)applyPhoto(key,url);
+ // Chỉ tìm trong thư mục của những vị trí chưa có URL trong bảng.
+ const missing=Object.keys(photoNames).filter(key=>!mapped.has(key));
+ await Promise.all(missing.map(async key=>{
+  try{
+   const stored=await listBucketImages(key);
+   stored.sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
+   if(stored[0])applyPhoto(key,stored[0].url);
+  }catch(e){console.warn('Không thể tải ảnh dự phòng '+key+':',e.message)}
+ }));
 }
 db.auth.onAuthStateChange((_event,session)=>{adminSession=session;if(document.getElementById('photoAdmin').classList.contains('open'))refreshAdmin()});
 document.querySelectorAll('[data-photo]').forEach(el=>{el.dataset.originalSrc=el.src});
