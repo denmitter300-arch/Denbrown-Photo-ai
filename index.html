@@ -42,7 +42,7 @@ footer{padding:24px 0;border-top:1px solid #333;background:#171717;color:#aaa;fo
 .viewer-photos{columns:3;column-gap:12px}.viewer-photos img{width:100%;display:block;margin:0 0 12px;break-inside:avoid}
 @media(max-width:760px){.album-grid{grid-template-columns:1fr 1fr;gap:10px}.album-card img{height:170px}.album-card .album-info{padding:11px}.album-card strong{font-size:16px}.viewer-photos{columns:2}}
 </style>
-<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <header><div class="wrap nav"><a class="brand" href="#">DENBROWN<small>PHOTOGRAPHY STUDIO</small></a><nav class="links" id="links"><a href="#portfolio">Portfolio</a><a href="#albums">Album</a><a href="#about">Giới thiệu</a><a href="#approach">Phong cách</a><a href="#contact">Liên hệ</a></nav><button class="menu" aria-label="Mở menu" onclick="document.getElementById('links').classList.toggle('open')">☰</button></div></header>
@@ -82,7 +82,7 @@ document.getElementById('year').textContent=new Date().getFullYear();
 const photoNames={hero:'Ảnh bìa chính',wedding1:'Ảnh phóng sự 1',wedding2:'Khoảnh khắc ngày cưới 2',details:'Khoảnh khắc chi tiết',couple:'Cô dâu và chú rể',bouquet:'Chi tiết ngày cưới',about:'Ảnh giới thiệu'};
 const SUPABASE_URL='https://huxkugikutlwiilnipso.supabase.co';
 const SUPABASE_KEY='sb_publishable_y_Zf6lrTKZWmi0l-Xj-S3A_VfRXB0U1';
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+var db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let adminSession=null;
 function togglePhotoAdmin(){const p=document.getElementById('photoAdmin');p.classList.toggle('open');if(p.classList.contains('open'))refreshAdmin().catch(e=>{document.getElementById('authStatus').textContent='Lỗi kết nối: '+e.message})}
 async function refreshAdmin(){const {data:{session}}=await db.auth.getSession();adminSession=session;const ok=!!session&&session.user.email==='denmitter300@gmail.com';document.getElementById('authArea').style.display=ok?'none':'block';document.getElementById('photoRows').style.display=ok?'block':'none';if(ok){renderPhotoRows();document.getElementById('albumAdmin').style.display='block'}else{document.getElementById('albumAdmin').style.display='none';document.getElementById('authStatus').textContent=session?'Tài khoản này không có quyền quản trị. Hãy đăng nhập bằng denmitter300@gmail.com.':'Tài khoản quản trị: denmitter300@gmail.com'}}
