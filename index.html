@@ -39,7 +39,14 @@ footer{padding:24px 0;border-top:1px solid #333;background:#171717;color:#aaa;fo
 .album-viewer{display:none;position:fixed;inset:0;z-index:100;background:#fff;overflow:auto;padding:28px max(18px,calc((100vw - 1100px)/2))}
 .album-viewer.open{display:block}.album-viewer h2{font:600 34px 'Playfair Display',serif;margin:28px 0}
 .album-close{position:sticky;top:8px;border:0;background:#171717;color:#fff;padding:12px 18px;cursor:pointer;float:right}
-.viewer-photos{columns:3;column-gap:12px}.viewer-photos img{width:100%;display:block;margin:0 0 12px;break-inside:avoid}
+.viewer-photos{columns:3;column-gap:12px}.viewer-photos img{width:100%;height:auto;display:block;margin:0 0 12px;break-inside:avoid;content-visibility:auto}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+img{max-width:100%}
+.album-card{width:100%;min-width:0}
+.album-card img{background:#f1f0ed}
+button,a{-webkit-tap-highlight-color:transparent}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+@media(max-width:760px){header{height:72px}.links{top:71px}.hero-img{height:min(112vw,430px)}section{padding:58px 0}.photo-admin-trigger{right:12px;bottom:12px;padding:12px 15px}.photo-admin{right:10px;bottom:66px;max-height:calc(100dvh - 84px)}.album-viewer{padding:16px 12px}.album-viewer h2{font-size:28px;margin:22px 0}.viewer-photos{column-gap:8px}.viewer-photos img{margin-bottom:8px}}
 @media(max-width:760px){.album-grid{grid-template-columns:1fr 1fr;gap:10px}.album-card img{height:170px}.album-card .album-info{padding:11px}.album-card strong{font-size:16px}.viewer-photos{columns:2}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -52,7 +59,7 @@ footer{padding:24px 0;border-top:1px solid #333;background:#171717;color:#aaa;fo
 <section id="albums"><div class="wrap"><div class="section-head"><div><div class="eyebrow">Wedding collections</div><h2>Danh sách album.</h2></div><p>Những câu chuyện ngày cưới được lưu giữ trọn vẹn qua từng bộ ảnh phóng sự.</p></div><div class="album-grid" id="albumGrid"><p class="album-empty">Đang tải danh sách album...</p></div></div></section>
 <section class="about" id="about"><div class="wrap about-grid"><div class="about-img"><img src="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=800&q=70" alt="Wedding reportage photographer" data-photo="about" loading="lazy" decoding="async"></div><div><div class="eyebrow">The studio</div><h2>Ghi lại câu chuyện ngày cưới.</h2><p>Với phong cách phóng sự, DENBROWN quan sát và ghi lại diễn biến ngày cưới một cách tự nhiên: từ khâu chuẩn bị, lễ gia tiên, lễ cưới đến tiệc mừng. Mỗi bức ảnh là một phần ký ức chân thật của cô dâu, chú rể và gia đình.</p><p>Tập trung vào cảm xúc thật, khoảnh khắc tự nhiên và câu chuyện riêng của mỗi gia đình.</p><a class="btn" href="#contact">Trao đổi lịch chụp</a></div></div></section>
 <section id="approach"><div class="wrap"><div class="section-head"><div><div class="eyebrow">Our approach</div><h2>Phóng sự cưới chân thật.</h2></div><p>Đồng hành cùng bạn trong ngày trọng đại, nhẹ nhàng ghi lại mọi khoảnh khắc đáng nhớ.</p></div><div class="services"><div class="service"><b>01 / Tự nhiên</b><p>Không tạo dáng gượng ép, không làm gián đoạn cảm xúc của buổi lễ.</p></div><div class="service"><b>02 / Đầy đủ câu chuyện</b><p>Ghi lại hành trình từ chuẩn bị, lễ gia tiên đến nghi thức và tiệc cưới.</p></div><div class="service"><b>03 / Chỉn chu</b><p>Chọn lọc và hậu kỳ ảnh đồng nhất, lưu giữ trọn vẹn kỷ niệm ngày cưới.</p></div></div></div></section>
-<section class="contact" id="contact"><div class="wrap contact-grid"><div><div class="eyebrow">Let's create something timeless</div><h2>Hãy kể chúng tôi nghe câu chuyện của bạn.</h2><p>Liên hệ DENBROWN để tư vấn và đặt lịch chụp phóng sự cưới.</p><div class="actions"><button class="btn dark" onclick="sharePage()">Chia sẻ Profile</button><button class="btn" onclick="showQR()">Mở mã QR</button></div></div><div class="contact-details"><div>☎ Điện thoại: <a href="tel:0963691411">0963 961 411</a></div><div>💬 Zalo: <a href="https://zalo.me/0963691411" target="_blank" rel="noopener">Nhắn tin Zalo: 0963 961 411</a></div><div>✉ Email: <a href="mailto:hello@denbrown.vn">hello@denbrown.vn</a></div><div>◎ Facebook: <a href="https://facebook.com/" target="_blank" rel="noopener">Cập nhật liên kết Facebook</a></div><div>⌖ Địa điểm: Việt Nam</div></div></div></section>
+<section class="contact" id="contact"><div class="wrap contact-grid"><div><div class="eyebrow">Let's create something timeless</div><h2>Hãy kể chúng tôi nghe câu chuyện của bạn.</h2><p>Liên hệ DENBROWN để tư vấn và đặt lịch chụp phóng sự cưới.</p><div class="actions"><button class="btn dark" onclick="sharePage()">Chia sẻ Profile</button><button class="btn" onclick="showQR()">Mở mã QR</button></div></div><div class="contact-details"><div>☎ Điện thoại: <a href="tel:0963691411">0963 691 411</a></div><div>💬 Zalo: <a href="https://zalo.me/0963691411" target="_blank" rel="noopener">Nhắn tin Zalo: 0963 691 411</a></div><div>✉ Email: <a href="mailto:hello@denbrown.vn">hello@denbrown.vn</a></div><div>◎ Facebook: <a href="https://facebook.com/" target="_blank" rel="noopener">Cập nhật liên kết Facebook</a></div><div>⌖ Địa điểm: Việt Nam</div></div></div></section>
 </main><footer><div class="wrap foot"><span>© <span id="year"></span> DENBROWN PHOTOGRAPHY STUDIO</span><span>MADE WITH PASSION FOR PHOTOGRAPHY</span></div></footer>
 
 <button class="photo-admin-trigger" onclick="togglePhotoAdmin()">✎ QUẢN LÝ ẢNH</button>
@@ -135,10 +142,11 @@ function renderAlbumList(data){
  grid.innerHTML='';(data||[]).forEach(renderAlbumCard);
 }
 async function loadAlbums(){
+ if(loadAlbums.busy)return;loadAlbums.busy=true;
  const grid=document.getElementById('albumGrid');if(!grid)return;
  // Render metadata from local cache immediately while Supabase refreshes in background.
  try{const cached=JSON.parse(localStorage.getItem(ALBUM_CACHE_KEY)||'[]');if(cached.length)renderAlbumList(cached)}catch(_){}
- const result=await db.from('denbrown_profile_albums').select('*').order('created_at',{ascending:false});
+ const result=await db.from('denbrown_profile_albums').select('id,title,event_date,location,cover_url,photo_urls,created_at').order('created_at',{ascending:false});
  const data=result.data||[],tableError=result.error;
  if(tableError)console.warn('Không đọc được bảng album:',tableError.message);
  if(!tableError){
@@ -150,8 +158,8 @@ async function loadAlbums(){
   empty.textContent=tableError?'Không đọc được danh sách album. Kiểm tra quyền đọc bảng album trong Supabase.':'Album phóng sự cưới sẽ được cập nhật tại đây.';
   grid.append(empty);
  }
- // Keep the Storage recovery scan off the critical rendering path.
- setTimeout(async()=>{
+ // Bỏ quét Storage toàn kho sau khi tải album; album mới đã được ghi vào bảng dữ liệu.
+ /* setTimeout(async()=>{
   try{
    const stored=await listBucketImages('albums');
    const known=new Set(data.flatMap(a=>[a.cover_url,...(a.photo_urls||[])].filter(Boolean)));
@@ -165,7 +173,8 @@ async function loadAlbums(){
     }
    }
   }catch(e){console.warn('Không thể liệt kê thư mục albums trong Storage:',e.message)}
- },1200);
+ },1200); */
+ loadAlbums.busy=false;
 }
 function openAlbum(album){
  document.getElementById('viewerTitle').textContent=album.title;
@@ -173,7 +182,7 @@ function openAlbum(album){
  const urls=[album.cover_url,...(album.photo_urls||[])].filter(Boolean);
  urls.forEach((url,index)=>{
   const img=document.createElement('img');img.alt=album.title+' - '+(index+1);
-  img.loading=index<4?'eager':'lazy';img.decoding='async';img.fetchPriority=index<2?'high':'low';
+  img.loading=index<2?'eager':'lazy';img.decoding='async';img.fetchPriority=index===0?'high':'low';
   setFastImage(img,url,1600,78);root.append(img);
  });
  document.getElementById('albumViewer').classList.add('open');document.body.style.overflow='hidden';
